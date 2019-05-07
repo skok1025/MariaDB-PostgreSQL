@@ -10,6 +10,7 @@ select count(*) from salaries where salary > (select avg(salary) from salaries w
 -- 단 조회결과는 연봉의 내림차순으로 정렬되어 나타나야 합니다. 
 
 select 
+d.dept_name,
 e.emp_no,
 concat(e.last_name," ",e.first_name) as "이름",
 s.salary
@@ -44,6 +45,7 @@ select avg(salary) from employees inner join salaries
 select e.emp_no,
 concat(e.last_name," ",e.first_name) as "이름",
 s.salary,
+d.dept_no,
 (
 select avg(salaries.salary) from employees inner join salaries
 					on employees.emp_no = salaries.emp_no inner join dept_emp
@@ -140,8 +142,43 @@ select title,avg(salary) from employees e inner join salaries s
 -- 부서이름, 사원이름, 연봉, 매니저 이름, 메니저 연봉 순으로 출력합니다.
 
 
+select 
+d.dept_name,
+concat(ep.last_name," ",ep.first_name) as "이름",
+s.salary,
+(select 
+concat(last_name," ",first_name) as "매니저 이름"
+from employees 
+where emp_no = (
+	select emp_no from dept_manager 
+    where dept_no = (
+		select d.dept_no from departments d inner join dept_emp de
+					on d.dept_no = de.dept_no inner join employees e
+						on e.emp_no = de.emp_no
+                        where e.emp_no = ep.emp_no
+    ) dept_manager.to_date = '9999-01-01'
+)) as "매니저 이름"
+ from employees ep inner join salaries s
+				on ep.emp_no = s.emp_no inner join dept_emp de
+				on ep.emp_no = s.emp_no inner join dept_emp de
+					on de.emp_no = ep.emp_no inner join departments d
+						on d.dept_no = de.dept_no
+                        where s.to_date = '9999-01-01';
 
 
+-- 10001 의 매니저 이름
+select 
+concat(last_name," ",first_name) as "매니저 이름"
+from employees 
+where emp_no = (
+	select emp_no from dept_manager 
+    where dept_no = (
+		select d.dept_no from departments d inner join dept_emp de
+					on d.dept_no = de.dept_no inner join employees e
+						on e.emp_no = de.emp_no
+                        where e.emp_no = 10001
+    ) and to_date = '9999-01-01'
+);
 
 -- 10001 의 매니저의 연봉
 select salary from salaries s inner join employees e

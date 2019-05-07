@@ -4,9 +4,10 @@
 -- 현재 급여가 많은 직원부터 직원의 사번, 이름, 그리고 연봉을 출력 하시오.
 select distinct e.emp_no as "사번",
       concat(first_name,' ',last_name) as "이름",
-        (select max(salary) from salaries where emp_no=e.emp_no) as "연봉"
+        (select max(salary) from salaries where emp_no=e.emp_no) as salary
  from employees e inner join salaries s
-               on e.emp_no = s.emp_no;
+               on e.emp_no = s.emp_no 
+               where s.to_date = '9999-01-01' order by salary desc;
                     
 
 -- 문제2.
@@ -51,7 +52,7 @@ employees e inner join dept_emp de
                 where now() between de.from_date and de.to_date and
                now() between s.from_date and s.to_date and
                     now() between t.from_date and t.to_date
-                    order by first_name;
+                    order by concat(first_name,' ',last_name);
 
 -- 문제5.
 -- ‘Technique Leader’의 직책으로 과거에 근무한 적이 있는 모든 사원의 사번과 이름을 출력하세요. 
