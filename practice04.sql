@@ -14,10 +14,10 @@ count(*) as "현재 평균연봉보다 많은 월급을 받는 직원 수"
 -- 단 조회결과는 연봉의 내림차순으로 정렬되어 나타나야 합니다.  o
 
 SELECT 
-    d.dept_name,
-    e.emp_no,
+    d.dept_name as "부서",
+    e.emp_no as "사번",
     CONCAT(e.last_name, ' ', e.first_name) AS '이름',
-    s.salary
+    s.salary as "사원연봉"
 FROM
     employees e
         INNER JOIN
@@ -47,7 +47,7 @@ ORDER BY s.salary DESC;
 -- 문제3. --
 -- 현재, 자신의 부서 평균 급여보다 연봉(salary)이 많은 사원의 사번, 이름과 연봉을 조회하세요 
 
--- 특정 부서마다의 평균연봉 select 
+-- 특정 부서(d001)의 평균연봉 select 
 select a.avg_salary from
 (select 
 de.dept_no as departmentno,
@@ -62,9 +62,9 @@ where a.departmentno = 'd001';
 
 -- 3번문제 답???
 select 
-e.emp_no,
-e.first_name,
-s.salary
+e.emp_no as "사번",
+ CONCAT(e.last_name, ' ', e.first_name) AS '이름',
+s.salary as "연봉"
  from employees e, salaries s,dept_emp d
 			where e.emp_no = s.emp_no
 				and e.emp_no = d.emp_no
@@ -95,15 +95,15 @@ s.salary
 -- 현재, 사원들의 사번, 이름, 매니저 이름, 부서 이름으로 출력해 보세요. o
 
 select 
-e.emp_no,
-e.first_name,
+e.emp_no as "사번",
+ CONCAT(e.last_name, ' ', e.first_name) AS '이름',
 (
 select first_name from employees e, dept_manager dm
 			where e.emp_no = dm.emp_no
 				and dm.to_date = '9999-01-01'
                 and dm.dept_no = d.dept_no
 ) as "매니저 이름",
-d.dept_name
+d.dept_name as "부서명"
  from employees e, dept_emp de,departments d
 		where e.emp_no = de.emp_no 
 			and de.dept_no = d.dept_no
@@ -114,10 +114,10 @@ d.dept_name
 -- 현재, 평균연봉이 가장 높은 부서의 사원들의 사번, 이름, 직책, 연봉을 조회하고 연봉 순으로 출력하세요. o 
 
 select 
-distinct e.emp_no,
-e.first_name,
-t.title,
-s.salary
+distinct e.emp_no as "사번",
+CONCAT(e.last_name, ' ', e.first_name) AS '이름',
+t.title  as "직책",
+s.salary  as "연봉"
  from employees e inner join salaries s 
 				on e.emp_no = s.emp_no inner join titles t 
 					on t.emp_no = e.emp_no inner join dept_emp de 
