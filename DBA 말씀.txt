@@ -1,0 +1,122 @@
+------------------------ DB 용어
+OLTP
+OLAP
+
+Graph DB -> Neo4J 관계찾는데 빠름
+
+세마포어 - https://ko.wikipedia.org/wiki/%EC%84%B8%EB%A7%88%ED%8F%AC%EC%96%B4
+
+------------------------------------------------
+t_emp		|	t_dept
+(10만건 레코드)	|	(100 레코드)
+emp_no (pk)        	|           dept_no (pk)
+emp_name           |           dept_name
+dept_no (fk)(index)	|           dept_location
+------------------------------------------------
+
+조인을 했을 때, 첫번째 접근하는 테이블은 일반적으로 디스크로 시퀀스접근 (disk I/O)
+pk로 접근하면 B-Tree (memory)
+
+일반적인 조인을 했을때 
+(->)
+
+외래키에 index 
+(<-)
+
+일반적으로 두 테이블을 조인했을 때, index가 없는 테이블부터 접근을 한다.
+-- 
+VACUUM FULL ANALYZE (table명)  => 조각모음? 통계정보 갱신
+
+============================================
+	Dynamic 쿼리  vs  Static 쿼리
+============================================
+
+------- Dynamic 쿼리 (Mybatis mapper.xml) (cache 안됨) -------
+where
+ 	col_a = '$1'
+	<if test="name= null">
+		and col_b =#{name}
+	</if>
+
+
+-------------- Static 쿼리 (cache 됨, 메모리 상주) --------------
+where
+ 	col_a = '$1'
+	and (col_b =#{name} OR #{name} IS NULL )
+
+============================================
+============================================
+
+============================================
+================ SDEC 2011 =================== 
+- ACP
+1. Availablilty
+2. Consistency
+3 .Partition Toierance
+
+
+
+
+
+
+
+=================================================
+
+※ 돈에 관련한 것들을 트랜잭션 처리
+
+※ 변경된 grade 만 업데이트 해야한다. (10만 레코드)
+
+UPDATE t_member SET member_grade = $grade$ WHERE member_id = $member_id$;
+ => 업데이트 10만개 =>  락이 10만개
+->
+UPDATE t_member SET member_grade = $grade$ WHERE member_id = $member_id$ AND member_grade <> $grade$;
+
+
+
+
+t_product
+
+t_item
+
+
+======주문 발생 시 DeadLock 해결=======
+
+※ DeadLock 발생
+
+[A session]			[B session]	
+BEGIN				BEGIN
+
+(가 상품)의 재고수량 -1 		(나 상품)의 재고수량 -1
+(나 상품)의 재고수량 -1 => DeadLock
+
+END				END
+
+
+
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+
+※ pg_advisory_lock
+
+[A session]			[B session]	
+BEGIN				
+select pg_advisory_lock(123);
+
+(가 상품)의 재고수량 -1 		
+(나 상품)의 재고수량 -1
+
+select pg_advisory_unlock(123);
+END
+-------------------------------------------------------------------------				
+				BEGIN
+				select pg_advisory_lock(123);
+
+				(나 상품)의 재고수량 -1
+
+				select pg_advisory_unlock(123);
+				END
+
+블록단위 -> 8K
